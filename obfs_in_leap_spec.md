@@ -2,7 +2,7 @@
 
 ##Overview
 
-This is a documentation concerning the integration of obfsproxy traffic obfuscation framework in the LEAP ecosystem. It specifies how should the obfsproxy function and defines a threat model against which LEAP's VPN over obfsproxy would be effective. Finally, it gives information on how obfsproxy should be treated both by the LEAP administrator and the LEAP end-user point of view.
+This is a documentation concerning the integration of obfsproxy traffic obfuscation framework in the LEAP ecosystem. It specifies how should the obfsproxy function and defines a threat model against which LEAP's VPN over obfsproxy would be effective. It contains a section about pluggable transports used by obfsproxy. Finally, it gives information on how obfsproxy should be treated both by the LEAP administrator and the LEAP end-user point of view.
 
 ##Specification
 
@@ -18,23 +18,24 @@ provider' side assumptions:
 
    * there is at least one obfsproxy server listening
    * obfsproxy server forwards traffic to a provider's VPN gateway
+
 client's side assumptions:
 
    * client has a valid copy of bitmask
    * client operates within a network that blocks VPN traffic
    * client is able to login with a provider, download OpenVPN client certificates and 'eip-service.json'
    * client uses VPN over obfsproxy
+
 adversary's side assumptions:
 
    * adversary is able to identify VPN traffic, e.g. by using Deep Packet Inspection technology
    * adversary blocks VPN traffic
    * adversary can opportunistically follow client's connections to probe and identify obfsproxy servers with legacy pluggable transports like 'obfs2', 'obfs3'.
+
 Then:
     
-
    * adversary will not be able to distinguish VPN traffic between client and provider's obfsproxy node
    * adversary will not be able to probe and identify an obfsproxy server if scramblesuit is used as transport and adversary knows not the shared secret
-
    * adversary will still be able to see client's traffic destinations
    * adversary can still observe HTTPS traffic between client and the provider's API (register or log into account, get client certificates, service definition files)
 
@@ -60,11 +61,11 @@ mitigates traffic flow analysis by modifying packets' length and inter-arrival t
 
 Although  'scramblesuit' is already deployed in some Tor bridges, Tor project  decided to hold scramblesuit aside as an "emergency" pluggable transport  and instead try to deploy a newer one on Tor bridges. This transport,  temporarily called'obfs4', incorporates scramblesuit's features but with  some variations: uses ntor handshake obfuscated with Elligator instead  of UniformDH handshake, uses NaCl secretbox instead of AES-CTR for  application data, is implemented in Go instead of Python. 'obfs4' has  not yet been deployed in Tor bridges.
 
-\url{https://trac.torproject.org/projects/tor/wiki/doc/AChildsGardenOfPluggableTransports}
+https://trac.torproject.org/projects/tor/wiki/doc/AChildsGardenOfPluggableTransports
 
 ###PT in LEAP
 
-obfsproxy  integration in LEAP should support any pluggable transport supported by  the upstream. First approach of the integration described above was  done with 'scramblesuit' in mind. Other PT should also work with slight  modifications.
+obfsproxy  integration in LEAP should support any pluggable transport supported by  the upstream. First approach of the integration described below was  done with 'scramblesuit' in mind. Other PT should also work with slight  modifications.
 
 ##Software additions and modifications
 
@@ -133,10 +134,10 @@ Bitmask uses openvpn command with the --socks-proxy argument, pointing to localh
 
 Since obfsproxy's socks implementation supports only TCP, VPN connection needs to be TCP as well.
 
-##Further improvements / Considerations
+##Considerations / Further improvements
 
 
-   * Bitmask with obfsproxy enabled will obfsuscate VPN traffic. If bitmask initiates registration or login procedure with a provider, HTTPS traffic to the provider's API will be completely visible to the adversary. As long as bitmask client has already available VPN client certificates ans service definitions files, for example have fetched in a previous point in the past, it should be able to launch VPN over obfsproxy without any interaction with API (login).
+   * Bitmask with obfsproxy enabled will obfsuscate VPN traffic. If bitmask initiates registration or login procedure with a provider, HTTPS traffic to the provider's API will be completely visible to the adversary. As long as bitmask client has already available VPN client certificates ans service definitions files, for example have fetched them in a previous point in the past, it should be able to launch VPN over obfsproxy without any interaction with API (login).
    * There could be a way for the providers to create special bitmask bundles that include obfsproxy and are preseeded with client certificates and configuration. This bundle could then be served to a user via a non-standard channel. This would be useful for users operating in networks with restrictions that would not permit them to even register, login and bootrstrap with a provider.
 
 ##LEAP administrator perspective
